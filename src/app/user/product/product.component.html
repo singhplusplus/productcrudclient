@@ -1,60 +1,113 @@
-<div class="container p-2">
+<div class="container">
   <div class="row">
-    <div class="col-md-5 col-md-offset-2">
-      <ul ngbNav #nav="ngbNav" class="nav-tabs">
-        <li ngbNavItem>
-          <a ngbNavLink>Search</a>
-          <ng-template ngbNavContent>
-            <!-- <ag-grid-angular
-                style="width: 100%; height: 100%"
-                class="ag-theme-alpine"
-                [columnDefs]="columnDefs"
-                [defaultColDef]="defaultColDef"
-                [rowData]="rowData | async"
-                [rowSelection]="'multiple'"
-                [animateRows]="true"
-                (gridReady)="onGridReady($event)"
-                (cellClicked)="onCellClicked($event)"
-              ></ag-grid-angular>
-              -->
-            <div class="container-fluid mt-4" id="search-tab">
-              <div class="d-flex">
-                <input
-                  class="form-control me-2"
-                  type="search"
-                  placeholder="Search"
-                  aria-label="Search"
-                />
-                <button class="btn btn-outline-success">Search</button>
-              </div>
-            </div>
-          </ng-template>
-        </li>
-        <li ngbNavItem>
-          <a ngbNavLink>Edit / Add</a>
-          <ng-template ngbNavContent>
-            <div class="row mt-4">
-              <div class="container">
-                <ag-grid-angular
-                  style="width: 500px; height: 150px"
-                  class="ag-theme-balham"
-                  [rowData]="rowData"
-                  [columnDefs]="columnDefs"
-                ></ag-grid-angular>
-              </div>
-            </div>
-          </ng-template>
-        </li>
-        <li ngbNavItem>
-          <a ngbNavLink>Upload</a>
-          <ng-template ngbNavContent>Upload file</ng-template>
-        </li>
-        <li ngbNavItem>
-          <a ngbNavLink>Delete</a>
-          <ng-template ngbNavContent>Delete Items</ng-template>
-        </li>
-      </ul>
-      <div [ngbNavOutlet]="nav"></div>
+    <div class="d-flex justify-content-center align-items-center">
+      <div class="col-md-12">
+        <div class="my-2">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th scope="col">Id</th>
+                <th scope="col">Name</th>
+                <th scope="col">Category</th>
+                <th scope="col">Date added</th>
+                <th *ngIf="isUserAdmin()" scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let product of productList; index as i">
+                <th scope="row">{{ product?.productId }}</th>
+                <td>
+                  <img [src]="'https://upload.wikimedia.org/wikipedia/commons/a/a4/Flag_of_the_United_States.svg'" class="me-2" style="width: 20px">
+                  {{ product?.productName }}
+                </td>
+                <td>{{ product?.productCategory }}</td>
+                <td>{{ product?.dateOfManufacture | date }}</td>
+                <td *ngIf="isUserAdmin()">
+                  <span role="button" class="me-4 p-0 text-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete Product">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+                      <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z"/>
+                    </svg>
+                  </span>
+                  <span (click)="editProductEnable(product?.productId)" role="button" class="me-4 p-0 text-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Product">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                      <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                      <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                    </svg>
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+        </div>
+      </div>
     </div>
   </div>
+
+  <div class="row">
+    <div class="d-flex justify-content-center align-items-center">
+      <div *ngIf="addProductEnabled">
+        <form class="row row-cols-md-auto g-2" [formGroup]="addProductForm" (ngSubmit)="addProductSubmit()">
+          <div class="col">
+            <label class="visually-hidden" for="prodName">Product Name</label>
+            <input formControlName="productName" class="form-control" id="prodName" type="text" placeholder="full name of product" aria-label="product name">
+          </div>
+          <div class="col">
+            <label class="visually-hidden" for="prodCategory">Product Category</label>
+            <input formControlName="productCategory" class="form-control" id="prodCategory" type="text" placeholder="product category" aria-label="product category">
+          </div>
+          <div class="col">
+            <label class="visually-hidden" for="prodDate">Date added</label>
+            <input formControlName="dateOfManufacture" class="form-control" id="prodDate" type="text" placeholder="product added date" aria-label="product date">
+          </div>
+          <div class="col">
+            <button type="submit" class="btn btn-primary btn-sm">Add</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="d-flex justify-content-center align-items-center">
+      <div *ngIf="editProductEnabled">
+        <form class="row row-cols-md-auto g-2" [formGroup]="editProductForm" (ngSubmit)="editProductSubmit()">
+          <div class="col">
+            <label class="visually-hidden" for="prodName">Product Name</label>
+            <input formControlName="productName" class="form-control" id="prodName" type="text" placeholder="full name of product" aria-label="product name">
+          </div>
+          <div class="col">
+            <label class="visually-hidden" for="prodCategory">Product Category</label>
+            <input formControlName="productCategory" class="form-control" id="prodCategory" type="text" placeholder="product category" aria-label="product category">
+          </div>
+          <div class="col">
+            <label class="visually-hidden" for="prodDate">Date added</label>
+            <input formControlName="dateOfManufacture" class="form-control" id="prodDate" type="text" placeholder="product added date" aria-label="product date">
+          </div>
+          <div class="col">
+            <button type="submit" class="btn btn-primary btn-sm">Edit done</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="d-flex justify-content-center align-items-center">
+      <div  *ngIf="isUserAdmin()" class="col-md-12">
+        <div class="my-2">
+          <button type="button" class="btn btn-primary" (click)="addProductEnable()">
+            Add Product
+            <!-- <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+              <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+            </svg> -->
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
 </div>
+

@@ -14,6 +14,7 @@ import { UserService } from './user/user.service';
 import { AuthGuard } from './auth/auth.guard';
 import { AuthInterceptor } from './auth/auth.interceptor';
 import { NotfoundComponent } from './notfound/notfound.component';
+import { ProductService } from './user/product/product.service';
 
 const AuthInterceptorConfig = {
   provide: HTTP_INTERCEPTORS,
@@ -38,7 +39,7 @@ const AuthInterceptorConfig = {
     AgGridModule,
     NgbModule
   ],
-  providers: [AuthGuard, AuthInterceptorConfig, UserService],
+  providers: [AuthGuard, AuthInterceptorConfig, UserService, ProductService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

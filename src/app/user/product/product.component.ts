@@ -1,53 +1,134 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { AgGridAngular } from 'ag-grid-angular';
-import { CellClickedEvent, ColDef, GridReadyEvent } from 'ag-grid-community';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs';
+import { ProductService } from './product.service';
 
 @Component({
   selector: 'app-product',
   templateUrl: './product.component.html',
   styleUrls: ['./product.component.scss'],
 })
-export class ProductComponent {
-  
-  constructor(private http: HttpClient) {}
-  
-  // For accessing the Grid's API
-  @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
-  
-  columnDefs: ColDef[] = [
-    { field: 'name' },
-    { field: 'category' },
-    { field: 'date' },
-  ];
-  // rowData !: Observable<any[]>;
+export class ProductComponent implements OnInit {
 
-  rowData = [
-        { name: 'Toyota', category: 'Celica', date: new Date() },
-        { name: 'Ford', category: 'Mondeo', date: 32000 },
-        { name: 'Porsche', category: 'Boxster', date: 72000 }
-    ];
+  productList : any[] = [];
+  addProductForm !: FormGroup;
+  editProductForm !: FormGroup;
 
-  public defaultColDef: ColDef = {
-    sortable: true,
-    filter: true,
-  };
+  addProductEnabled : boolean = false;
+  editProductEnabled : boolean = false;
 
-  // Example load data from sever
-  // onGridReady(params: GridReadyEvent) {
-  //   this.rowData = this.http.get<any[]>(
-  //     'https://www.ag-grid.com/example-assets/row-data.json'
-  //   );
-  // }
+  constructor(private fb: FormBuilder, private http: HttpClient, private prodService: ProductService
+    , private router: Router, private activeRoute: ActivatedRoute) {
 
-  // Example of consuming Grid Event
-  // onCellClicked(e: CellClickedEvent): void {
-  //   console.log('cellClicked', e);
-  // }
+    this.addProductForm = this.fb.group({
+      productName: '',
+      productCategory: '',
+      dateOfManufacture: ''
+    });
+    this.editProductForm = this.fb.group({
+      productId: '',
+      productName: '',
+      productCategory: '',
+      dateOfManufacture: ''
+    });
+  }
 
-  // Example using Grid's API
-  clearSelection(): void {
-    this.agGrid.api.deselectAll();
+  ngOnInit(): void {
+    this.prodService.getAllProducts().subscribe(
+      (res : any) => {
+        if(!res.success) {
+          console.error("Products not found", res);
+        }
+        else {
+          this.productList = res.items;
+        }
+      },
+      err => {
+        console.error("Login error", err);
+      }
+    )
+  }
+
+  reloadPage(): void {
+    let currentUrl = this.router.url;
+    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+      this.router.navigate([currentUrl]);
+    });
+  }
+
+  addProductEnable(): void {
+    this.addProductEnabled = true;
+    this.editProductEnabled = false;
+  }
+  addProductSubmit(): void {
+    console.log(this.addProductForm.value);
+    this.addProductEnabled = false;
+    this.prodService.addProduct(this.addProductForm.value).subscribe(
+      (res : any) => {
+        if(!res.success) {
+          console.error("Product not added", res);
+        }
+        else {
+          console.log("product added res", res);
+          // this.router.navigateByUrl("product");
+          this.reloadPage();
+          // this.productList.splice(this.productList.length, 0, res.item);
+          // this.productList = res.items;
+        }
+      },
+      err => {
+        console.error("Login error", err);
+      }
+    );
+  }
+
+  editProductEnable(productId: string): void {
+    this.addProductEnabled = false;
+    this.editProductEnabled = true;
+    const editableProduct = this.productList.find(
+      (product) => {
+        return product.productId == productId;
+      }
+    );
+
+    this.editProductForm.setValue({
+      productId: editableProduct.productId,
+      productName: editableProduct.productName,
+      productCategory: editableProduct.productCategory,
+      dateOfManufacture: editableProduct.dateOfManufacture
+    });
+  }
+
+  editProductSubmit(): void {
+    console.log(this.editProductForm.value);
+    this.editProductEnabled = false;
+    // const editedProduct = this.editProductForm.value;
+    // editedProduct.productId = productId;
+    this.prodService.editProduct(this.editProductForm.value).subscribe(
+      (res : any) => {
+        if(!res.success) {
+          console.error("Product not edited", res);
+        }
+        else {
+          console.log("product edited res", res);
+          // this.router.navigateByUrl("product");
+          this.reloadPage();
+          // this.productList.splice(this.productList.length, 0, res.item);
+          // this.productList = res.items;
+        }
+      },
+      err => {
+        console.error("Login error", err);
+      }
+    );
+  }
+  deleteProduct(productId: string): void {
+
+  }
+
+  isUserAdmin(): boolean {
+    return 5>4;
   }
 }

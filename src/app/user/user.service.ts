@@ -20,10 +20,6 @@ export class UserService {
     return this.http.post(api.baseUrl + '/auth/login', authCredentials, this.noAuthHeader);
   }
 
-  getAllProducts() {
-    return this.http.get(api.baseUrl + '/product/all');
-  }
-
   // Helpers
   setToken(token : string) {
     localStorage.setItem('token', token);
