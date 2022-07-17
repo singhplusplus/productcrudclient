@@ -2,7 +2,9 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from 'rxjs';
+import { DeletemodalComponent } from './deletemodal/deletemodal.component';
 import { ProductService } from './product.service';
 
 @Component({
@@ -15,12 +17,13 @@ export class ProductComponent implements OnInit {
   productList : any[] = [];
   addProductForm !: FormGroup;
   editProductForm !: FormGroup;
+  searchProductQuery = "";
 
   addProductEnabled : boolean = false;
   editProductEnabled : boolean = false;
 
   constructor(private fb: FormBuilder, private http: HttpClient, private prodService: ProductService
-    , private router: Router, private activeRoute: ActivatedRoute) {
+    , private router: Router, private activeRoute: ActivatedRoute, private modalService: NgbModal) {
 
     this.addProductForm = this.fb.group({
       productName: '',
@@ -46,7 +49,7 @@ export class ProductComponent implements OnInit {
         }
       },
       err => {
-        console.error("Login error", err);
+        console.error("Products not found error", err);
       }
     )
   }
@@ -58,11 +61,11 @@ export class ProductComponent implements OnInit {
     });
   }
 
-  addProductEnable(): void {
+  enableAddProduct(): void {
     this.addProductEnabled = true;
     this.editProductEnabled = false;
   }
-  addProductSubmit(): void {
+  submitAddProduct(): void {
     console.log(this.addProductForm.value);
     this.addProductEnabled = false;
     this.prodService.addProduct(this.addProductForm.value).subscribe(
@@ -72,19 +75,16 @@ export class ProductComponent implements OnInit {
         }
         else {
           console.log("product added res", res);
-          // this.router.navigateByUrl("product");
           this.reloadPage();
-          // this.productList.splice(this.productList.length, 0, res.item);
-          // this.productList = res.items;
         }
       },
       err => {
-        console.error("Login error", err);
+        console.error("Product cannot be added", err);
       }
     );
   }
 
-  editProductEnable(productId: string): void {
+  enableEditProduct(productId: string): void {
     this.addProductEnabled = false;
     this.editProductEnabled = true;
     const editableProduct = this.productList.find(
@@ -101,11 +101,9 @@ export class ProductComponent implements OnInit {
     });
   }
 
-  editProductSubmit(): void {
+  submitEditProduct(): void {
     console.log(this.editProductForm.value);
     this.editProductEnabled = false;
-    // const editedProduct = this.editProductForm.value;
-    // editedProduct.productId = productId;
     this.prodService.editProduct(this.editProductForm.value).subscribe(
       (res : any) => {
         if(!res.success) {
@@ -113,21 +111,80 @@ export class ProductComponent implements OnInit {
         }
         else {
           console.log("product edited res", res);
-          // this.router.navigateByUrl("product");
           this.reloadPage();
-          // this.productList.splice(this.productList.length, 0, res.item);
-          // this.productList = res.items;
         }
       },
       err => {
-        console.error("Login error", err);
+        console.error("Product not updated error", err);
       }
     );
   }
-  deleteProduct(productId: string): void {
 
+  deleteProduct(productId: string, productName: string): void {
+    const modalRef = this.modalService.open(DeletemodalComponent, {backdrop: 'static'});
+    modalRef.componentInstance.productName = productName;
+    modalRef.result
+      .then(res => {
+        console.log("res modal closed", res);
+        this.prodService.deleteProduct(productId).subscribe(
+          (res : any) => {
+            if(!res.success) {
+              console.error("Product not deleted", res);
+            }
+            else {
+              console.log("product deleted", res);
+              this.reloadPage();
+            }
+          },
+          err => {
+            console.error("Product not deleted error", err);
+          }
+        );
+      })
+      .catch(err => {
+        console.log("res modal dismissed", err);
+      }
+    );
   }
 
+  submitSearchProduct(): void {
+    console.log(this.searchProductQuery);
+    if(!this.searchProductQuery) {
+      this.prodService.getAllProducts().subscribe(
+        (res : any) => {
+          if(!res.success) {
+            console.error("Products not found", res);
+          }
+          else {
+            this.productList = res.items;
+          }
+        },
+        err => {
+          console.error("Products not found error", err);
+        }
+      )
+    }
+    else {
+      this.prodService.searchProduct(this.searchProductQuery).subscribe(
+        (res : any) => {
+          if(!res.success) {
+            console.error("Product not searched", res);
+          }
+          else {
+            console.log("product searched res", res);
+            this.productList = res.items;
+            // this.reloadPage();
+          }
+        },
+        err => {
+          console.error("Product not searched error", err);
+        }
+      );
+    }
+  }
+
+  uploadProducts(): void {}
+  downloadProducts(): void {}
   isUserAdmin(): boolean {
     return 5>4;
   }

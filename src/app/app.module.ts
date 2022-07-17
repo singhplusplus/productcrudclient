@@ -15,6 +15,7 @@ import { AuthGuard } from './auth/auth.guard';
 import { AuthInterceptor } from './auth/auth.interceptor';
 import { NotfoundComponent } from './notfound/notfound.component';
 import { ProductService } from './user/product/product.service';
+import { DeletemodalComponent } from './user/product/deletemodal/deletemodal.component';
 
 const AuthInterceptorConfig = {
   provide: HTTP_INTERCEPTORS,
@@ -28,7 +29,8 @@ const AuthInterceptorConfig = {
     ProductComponent,
     LoginComponent,
     SignupComponent,
-    NotfoundComponent
+    NotfoundComponent,
+    DeletemodalComponent
   ],
   imports: [
     BrowserModule,
