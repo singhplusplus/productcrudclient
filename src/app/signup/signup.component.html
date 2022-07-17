@@ -1,0 +1,31 @@
+<div class="container">
+  <div class="row">
+    <div class="d-flex justify-content-center align-items-center">
+      <div class="col-md-4">
+        <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+          <h3 class="my-4">Signup</h3>
+          <div class="mb-3">
+            <label for="fullNameId" class="form-label">Full name</label>
+            <input formControlName="fullName" class="form-control form-control-lg" id="fullNameId" type="text" placeholder="your full name e.g. John Doe" aria-label="signup fullname">
+          </div>
+          <div class="mb-3">
+            <label for="emailId" class="form-label">Email address</label>
+            <input formControlName="email" class="form-control form-control-lg" id="emailId" type="text" placeholder="youremail@xyz.com" aria-label="signup email">
+          </div>
+          <div class="mb-3">
+            <label for="passwordId" class="form-label">Password</label>
+            <input formControlName="password" class="form-control form-control-lg" id="passwordId" type="password" placeholder="xxxxxxxx password" aria-label="signup password">
+            <div class="form-text">Password must be minimum 8 characters in length.</div>
+          </div>
+          <!-- <div class="mb-3">
+            <label for="passwordId" class="form-label">Confirm Password</label>
+            <input formControlName="password" class="form-control form-control-lg" id="passwordId" type="password" placeholder="your password here" aria-label="signup password">
+          </div> -->
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary">Signup</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
