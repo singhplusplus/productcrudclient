@@ -28,6 +28,15 @@ export class SignupComponent implements OnInit {
 
   onSubmit() {
     console.log(this.signupForm.value);
+    this.userService.signupUser(this.signupForm.value).subscribe(
+      (res : any) => {
+        // this.router.navigateByUrl("login");
+        this.router.navigate(['/login'], {queryParams: {redirectedFrom: "register"}});
+      },
+      err => {
+        console.error("Login error", err);
+      }
+    )
   }
 
 }

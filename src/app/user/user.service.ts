@@ -13,24 +13,39 @@ export class UserService {
 
   // Http
   signupUser(user: User) {
-    return this.http.post(api.baseUrl + '/auth/signup', user, this.noAuthHeader);
+    return this.http.post(api.baseUrl + '/auth/register', user, this.noAuthHeader);
   }
 
   login(authCredentials: any) {
     return this.http.post(api.baseUrl + '/auth/login', authCredentials, this.noAuthHeader);
   }
 
-  // Helpers
+  getProfile(email: any) {
+    console.log(email);
+    return this.http.get(api.baseUrl + `/auth/profile/${email}`);
+    // return this.http.get(api.baseUrl + '/auth/profile', authCredentials);
+  }
+
+  // Token Helpers
   setToken(token : string) {
     localStorage.setItem('token', token);
   }
-
   getToken() {
     return localStorage.getItem('token');
   }
-
   deleteToken() {
     localStorage.removeItem('token');
+  }
+
+  // Email Helpers
+  setEmail(email: string) {
+    localStorage.setItem('userEmail', email);
+  }
+  getEmail() {
+    return localStorage.getItem('userEmail');
+  }
+  deleteEmail() {
+    localStorage.removeItem('userEmail');
   }
 
   getUserPayload() {
@@ -52,5 +67,6 @@ export class UserService {
     else
       return false;
   }
+
 
 }

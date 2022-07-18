@@ -9,6 +9,7 @@ import { NotfoundComponent } from './notfound/notfound.component';
 const routes: Routes = [
   {path: 'product', component: ProductComponent, canActivate: [AuthGuard]},
   {path: 'login', component: LoginComponent},
+  {path: 'login/:redirectedFrom', component: LoginComponent},
   {path: 'signup', component: SignupComponent},
   {path: '', redirectTo: '/login', pathMatch: 'full'},
   { path: '**', component: NotfoundComponent}

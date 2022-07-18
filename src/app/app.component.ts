@@ -16,6 +16,7 @@ export class AppComponent implements OnInit {
 
   onLogout() {
     this.userService.deleteToken();
+    this.userService.deleteEmail();
     this.router.navigateByUrl('/login');
   }
 

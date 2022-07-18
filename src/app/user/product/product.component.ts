@@ -1,9 +1,9 @@
-import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from 'rxjs';
+import { UserService } from '../user.service';
 import { DeletemodalComponent } from './deletemodal/deletemodal.component';
 import { ProductService } from './product.service';
 
@@ -15,6 +15,7 @@ import { ProductService } from './product.service';
 export class ProductComponent implements OnInit {
 
   productList : any[] = [];
+  loggedUser: any;
   addProductForm !: FormGroup;
   editProductForm !: FormGroup;
   searchProductQuery = "";
@@ -22,8 +23,9 @@ export class ProductComponent implements OnInit {
   addProductEnabled : boolean = false;
   editProductEnabled : boolean = false;
 
-  constructor(private fb: FormBuilder, private http: HttpClient, private prodService: ProductService
-    , private router: Router, private activeRoute: ActivatedRoute, private modalService: NgbModal) {
+  constructor(private fb: FormBuilder, private userService: UserService, 
+    private prodService: ProductService, private router: Router, private modalService: NgbModal
+  ) {
 
     this.addProductForm = this.fb.group({
       productName: '',
@@ -50,6 +52,20 @@ export class ProductComponent implements OnInit {
       },
       err => {
         console.error("Products not found error", err);
+      }
+    );
+
+    this.userService.getProfile(this.userService.getEmail()).subscribe(
+      (res : any) => {
+        if(!res.success) {
+          console.error("User not found", res);
+        }
+        else {
+          this.loggedUser = res.user;
+        }
+      },
+      err => {
+        console.error("User not found error", err);
       }
     )
   }
@@ -185,7 +201,8 @@ export class ProductComponent implements OnInit {
 
   uploadProducts(): void {}
   downloadProducts(): void {}
+
   isUserAdmin(): boolean {
-    return 5>4;
+    return this.loggedUser && this.loggedUser.role === "Admin";
   }
 }
