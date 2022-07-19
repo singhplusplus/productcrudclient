@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { UserService } from '../user/user.service';
 
@@ -30,23 +30,38 @@ export class LoginComponent implements OnInit {
     });
 
     this.loginForm = this.fb.group({
-      email: '',
-      password: ''
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [
+        Validators.required,
+        Validators.pattern('^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9]+)$'),
+        Validators.minLength(8),
+        Validators.maxLength(24),
+      ]]
     });
     // this.loginForm.valueChanges.subscribe(console.log);
   }
+  get emailControl() {
+    return this.loginForm.get('email');
+  }
+  get passwordControl() {
+    return this.loginForm.get('password');
+  }
 
   onSubmit() {
-    console.log(this.loginForm.value);
-    this.userService.login(this.loginForm.value).subscribe(
-      (res : any) => {
-        this.userService.setToken(res["token"]);
-        this.userService.setEmail(this.loginForm.value.email);
-        this.router.navigateByUrl("product");
-      },
-      err => {
-        console.error("Login error", err);
-      }
-    )
+    if(this.loginForm.valid) {
+      this.userService.login(this.loginForm.value).subscribe(
+        (res : any) => {
+          this.userService.setToken(res["token"]);
+          this.userService.setEmail(this.loginForm.value.email);
+          this.router.navigateByUrl("product");
+        },
+        err => {
+          console.error("Login error", err);
+        }
+      )
+    }
+    else {
+      this.loginForm.markAllAsTouched();
+    }
   }
 }

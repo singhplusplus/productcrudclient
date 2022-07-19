@@ -21,7 +21,6 @@ export class UserService {
   }
 
   getProfile(email: any) {
-    console.log(email);
     return this.http.get(api.baseUrl + `/auth/profile/${email}`);
     // return this.http.get(api.baseUrl + '/auth/profile', authCredentials);
   }

@@ -9,11 +9,23 @@
           <h3 class="my-4">Login</h3>
           <div class="mb-3">
             <label for="emailId" class="form-label">Email address</label>
-            <input formControlName="email" class="form-control form-control-lg" id="emailId" type="text" placeholder="youremail@xyz.com" aria-label="login email">
+            <input formControlName="email" class="form-control form-control-lg" id="emailId" type="text" placeholder="youremail@domain" aria-label="login email">
+            <!-- <div *ngIf="emailControl?.touched && emailControl?.invalid" class="form-text text-danger">
+              A valid email address must contain the character - @ and domain
+            </div> -->
+            <div *ngIf="emailControl?.touched && emailControl?.value.length === 0" class="form-text text-danger">
+              Email address cannot be empty
+            </div>
           </div>
           <div class="mb-3">
             <label for="passwordId" class="form-label">Password</label>
             <input formControlName="password" class="form-control form-control-lg" id="passwordId" type="password" placeholder="xxxxxxxx password" aria-label="login password">
+            <!-- <div *ngIf="passwordControl?.touched && passwordControl?.invalid" class="form-text text-danger">
+              A valid password must be alpha-numeric and contains 8-24 characters
+            </div> -->
+            <div *ngIf="passwordControl?.touched && passwordControl?.value.length === 0" class="form-text text-danger">
+              Password cannot be empty
+            </div>
           </div>
           <div class="d-grid">
             <button type="submit" class="btn btn-primary">Login</button>

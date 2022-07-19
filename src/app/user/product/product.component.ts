@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from 'rxjs';
 import { UserService } from '../user.service';
 import { DeletemodalComponent } from './deletemodal/deletemodal.component';
 import { ProductService } from './product.service';
+import * as XLSX from 'xlsx';
+import { UploadmodalComponent } from './uploadmodal/uploadmodal.component';
 
 @Component({
   selector: 'app-product',
@@ -28,16 +30,36 @@ export class ProductComponent implements OnInit {
   ) {
 
     this.addProductForm = this.fb.group({
-      productName: '',
-      productCategory: '',
-      dateOfManufacture: ''
+      productName: ['', [Validators.required]],
+      productCategory: ['', [Validators.required]],
+      dateOfManufacture: ['', [Validators.required]],
     });
     this.editProductForm = this.fb.group({
       productId: '',
-      productName: '',
-      productCategory: '',
-      dateOfManufacture: ''
+      productName: ['', [Validators.required]],
+      productCategory: ['', [Validators.required]],
+      dateOfManufacture: ['', [Validators.required]],
     });
+  }
+
+  get addProdName() {
+    return this.addProductForm.get('productName');
+  }
+  get addProdCategory() {
+    return this.addProductForm.get('productCategory');
+  }
+  get addManufactureDate() {
+    return this.addProductForm.get('dateOfManufacture');
+  }
+
+  get editProdName() {
+    return this.editProductForm.get('productName');
+  }
+  get editProdCategory() {
+    return this.editProductForm.get('productCategory');
+  }
+  get editManufactureDate() {
+    return this.editProductForm.get('dateOfManufacture');
   }
 
   ngOnInit(): void {
@@ -55,6 +77,8 @@ export class ProductComponent implements OnInit {
       }
     );
 
+    // TODO: Move this logic to login success place and store user-(email, role, full name) in storage
+    // Get complete User profile for "role" using "userEmail" from storage
     this.userService.getProfile(this.userService.getEmail()).subscribe(
       (res : any) => {
         if(!res.success) {
@@ -82,22 +106,27 @@ export class ProductComponent implements OnInit {
     this.editProductEnabled = false;
   }
   submitAddProduct(): void {
-    console.log(this.addProductForm.value);
-    this.addProductEnabled = false;
-    this.prodService.addProduct(this.addProductForm.value).subscribe(
-      (res : any) => {
-        if(!res.success) {
-          console.error("Product not added", res);
+    if(this.addProductForm.valid) {
+      this.prodService.addProduct(this.addProductForm.value).subscribe(
+        (res : any) => {
+          if(!res.success) { // Add product failed
+            console.error("Product not added", res);
+          }
+          else {
+            console.log("product added res", res);
+            // disable the Add product form on success
+            this.addProductEnabled = false;
+            this.reloadPage();
+          }
+        },
+        err => {
+          console.error("Product cannot be added", err);
         }
-        else {
-          console.log("product added res", res);
-          this.reloadPage();
-        }
-      },
-      err => {
-        console.error("Product cannot be added", err);
-      }
-    );
+      );
+    }
+    else {
+      this.addProductForm.markAllAsTouched();
+    }
   }
 
   enableEditProduct(productId: string): void {
@@ -118,22 +147,27 @@ export class ProductComponent implements OnInit {
   }
 
   submitEditProduct(): void {
-    console.log(this.editProductForm.value);
-    this.editProductEnabled = false;
-    this.prodService.editProduct(this.editProductForm.value).subscribe(
-      (res : any) => {
-        if(!res.success) {
-          console.error("Product not edited", res);
+    if(this.editProductForm.valid) {
+      this.prodService.editProduct(this.editProductForm.value).subscribe(
+        (res : any) => {
+          if(!res.success) { // Edit product failed
+            console.error("Product not edited", res);
+          }
+          else {
+            console.log("product edited res", res);
+            // disable the Edit product form on success
+            this.editProductEnabled = false;
+            this.reloadPage();
+          }
+        },
+        err => {
+          console.error("Product not updated error", err);
         }
-        else {
-          console.log("product edited res", res);
-          this.reloadPage();
-        }
-      },
-      err => {
-        console.error("Product not updated error", err);
-      }
-    );
+      );
+    }
+    else {
+      this.editProductForm.markAllAsTouched();
+    }
   }
 
   deleteProduct(productId: string, productName: string): void {
@@ -199,8 +233,55 @@ export class ProductComponent implements OnInit {
     }
   }
 
-  uploadProducts(): void {}
-  downloadProducts(): void {}
+  uploadProducts(): void {
+    const modalRef = this.modalService.open(UploadmodalComponent, {backdrop: 'static'});
+    let productsArray: any[] = [];
+    modalRef.result
+      .then(modalRes => {
+        console.log("res modal closed", modalRes);
+        productsArray = modalRes;
+        this.prodService.addMultipleProducts(productsArray).subscribe(
+          (res : any) => {
+            // res - array of all the responses (success / error) from adding individual product
+            if(!res) {
+              console.error("Products not uploaded", res);
+            }
+            else {
+              console.log("Products uploaded successfully", res);
+              this.reloadPage();
+            }
+          },
+          err => {
+            console.error("Products not uploaded error", err);
+          }
+        );
+      })
+      .catch(err => {
+        console.log("res modal dismissed", err);
+      }
+    );
+  }
+
+  downloadProducts(): void {
+    const prodWorkbook = XLSX.utils.book_new();
+    // filter productList data to remove irrelevant DB fields
+    const productDataToWrite = [];
+    for (let index = 0; index < this.productList.length; index++) {
+      const prod = this.productList[index];
+      productDataToWrite.push({
+        productName: prod.productName,
+        productCategory: prod.productCategory,
+        dateOfManufacture: prod.dateOfManufacture
+      })
+    }
+    const prodWorksheet = XLSX.utils.json_to_sheet(productDataToWrite);
+    XLSX.utils.book_append_sheet(prodWorkbook, prodWorksheet, "Products");
+    const prodFile = this.writeToExcel(prodWorkbook);
+  }
+  private async writeToExcel(workbook: any) {
+    const prodFile = await XLSX.writeFile(workbook, "Products.xlsx");
+    // console.log(prodFile);
+  }
 
   isUserAdmin(): boolean {
     return this.loggedUser && this.loggedUser.role === "Admin";

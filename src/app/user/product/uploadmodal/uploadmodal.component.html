@@ -1,0 +1,19 @@
+<div class="modal-header">
+  <h4 class="modal-title" id="modal-basic-title">Upload Products</h4>
+  <button type="button" class="btn-close" aria-label="Close" (click)="closeWithoutUpload()"></button>
+</div>
+<div class="modal-body">
+  <p>Upload .xlsx file that contain Product's record, to insert in database.</p>
+  <form>
+    <div class="mb-3">
+      <!-- <label for="deleteConfirmId">Upload file to upload Product's record here</label> -->
+      <input class="form-control" #fileInput type="file" placeholder="" (input)="uploadProducts(fileInput, $event)" [multiple]="false"/>
+      <!-- <input id="deleteConfirmId" class="form-control" name="confirmDelete" [(ngModel)]="deleteConfirmText"> -->
+      <div class="form-text">The .xlsx file must have a sheet that contain 3 columns named <strong>productName, productCategory, dateOfManufacture</strong></div>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-outline-dark" (click)="closeWithoutUpload()">Cancel</button>
+  <button type="button" class="btn btn-primary" (click)="saveUploadedData()">Save</button>
+</div>

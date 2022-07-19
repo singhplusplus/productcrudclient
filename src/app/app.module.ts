@@ -16,6 +16,7 @@ import { AuthInterceptor } from './auth/auth.interceptor';
 import { NotfoundComponent } from './notfound/notfound.component';
 import { ProductService } from './user/product/product.service';
 import { DeletemodalComponent } from './user/product/deletemodal/deletemodal.component';
+import { UploadmodalComponent } from './user/product/uploadmodal/uploadmodal.component';
 
 const AuthInterceptorConfig = {
   provide: HTTP_INTERCEPTORS,
@@ -30,7 +31,8 @@ const AuthInterceptorConfig = {
     LoginComponent,
     SignupComponent,
     NotfoundComponent,
-    DeletemodalComponent
+    DeletemodalComponent,
+    UploadmodalComponent
   ],
   imports: [
     BrowserModule,
