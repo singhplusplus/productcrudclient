@@ -18,12 +18,14 @@ export class ProductComponent implements OnInit {
 
   productList : any[] = [];
   loggedUser: any;
+
   addProductForm !: FormGroup;
   editProductForm !: FormGroup;
-  searchProductQuery = "";
-
   addProductEnabled : boolean = false;
   editProductEnabled : boolean = false;
+  
+  searchProductQuery = "";
+  searchBy = "name";
 
   constructor(private fb: FormBuilder, private userService: UserService, 
     private prodService: ProductService, private router: Router, private modalService: NgbModal
@@ -162,7 +164,8 @@ export class ProductComponent implements OnInit {
         },
         err => {
           console.error("Product not updated error", err);
-        }
+        },
+        null
       );
     }
     else {

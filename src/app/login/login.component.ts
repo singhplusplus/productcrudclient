@@ -49,16 +49,16 @@ export class LoginComponent implements OnInit {
 
   onSubmit() {
     if(this.loginForm.valid) {
-      this.userService.login(this.loginForm.value).subscribe(
-        (res : any) => {
+      this.userService.login(this.loginForm.value).subscribe({
+        next: (res : any) => {
           this.userService.setToken(res["token"]);
           this.userService.setEmail(this.loginForm.value.email);
           this.router.navigateByUrl("product");
         },
-        err => {
+        error: err => {
           console.error("Login error", err);
         }
-      )
+      })
     }
     else {
       this.loginForm.markAllAsTouched();

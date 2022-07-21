@@ -1,17 +1,29 @@
-<nav class="navbar navbar-expand-md bg-light m-0">
+<nav class="navbar navbar-expand-md bg-light">
   <div class="container-fluid">
+    <a href="#" class="navbar-brand text-primary mb-0 h1">Productify</a>
+    <div class="nav-item">
+      <app-weathernowcard *ngIf="weatherInfo" #weatherCard role="button" [weatherInfo]="weatherInfo" weatherIcon="{{weatherIconObs | async}}" (cardClick)="openWeatherModal(weatherCard.weatherIcon)"></app-weathernowcard>
+    </div>
     <div class="navbar-nav">
-      <div *ngIf="userLoggedIn(); then thenBlock else elseBlock"></div>
-      <ng-template #thenBlock>
-        <a class="nav-link" routerLink="/product" routerLinkActive="active">Product</a>
-        <button type="button" class="btn btn-primary" (click)="onLogout()">Logout</button>
+      <div *ngIf="userLoggedIn(); then loggedInLinks else loggedOutLinks"></div>
+      <ng-template #loggedInLinks>
+        <div class="nav-item">
+          <a class="nav-link" routerLink="/product" routerLinkActive="active">Product</a>
+        </div>
+        <div class="nav-item">
+          <button type="button" class="btn btn-link" (click)="onLogout()">Logout</button>
+        </div>
       </ng-template>
-      <ng-template #elseBlock>
-        <a class="nav-link" routerLink="/login" routerLinkActive="active">Login</a>
-        <a class="nav-link" routerLink="/signup" routerLinkActive="active">Signup</a>
+      <ng-template #loggedOutLinks>
+        <div class="nav-item">
+          <a class="nav-link" routerLink="/login" routerLinkActive="active">Login</a>
+        </div>
+        <div class="nav-item">
+          <a class="nav-link" routerLink="/signup" routerLinkActive="active">Signup</a>
+        </div>
       </ng-template>
     </div>
-
+    
   </div>
 </nav>
 

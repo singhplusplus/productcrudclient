@@ -1,29 +1,32 @@
 <div class="container">
 
+
   <div class="row my-2">
     <div class="d-flex justify-content-center align-items-center">
-      <!-- <div *ngIf="searchEnabled">
-      </div> -->
-      <!-- <form class="row row-cols-md-auto g-2" [formGroup]="searchProductForm" (ngSubmit)="submitSearchProduct()"> -->
-        <div class="row row-cols-md-auto g-2">
-          <div class="col">
-            <p>Search by : name category Sort by: date</p>
-          </div>
-          <div class="col">
-            <label class="visually-hidden" for="prodNameSearch">Product Name</label>
-            <input class="form-control" id="prodNameSearch" type="text" name="searchQuery" [(ngModel)]="searchProductQuery" aria-label="product name">
-          </div>
-          <!-- <div class="col">
-            <label class="visually-hidden" for="prodCategorySearch">Product Category</label>
-            <input formControlName="productCategory" class="form-control" id="prodCategorySearch" type="text" placeholder="Product Category" aria-label="product category">
-          </div> -->
-          <div class="col">
-            <button (click)="submitSearchProduct()" type="button" class="btn btn-primary">Search</button>
+      <div class="row row-cols-md-auto g-2">
+        <div class="col">
+          Search by : 
+          <div class="btn-group" role="group" ngbRadioGroup name="searchQueryBy" [(ngModel)]="searchBy">
+            <label ngbButtonLabel class="btn-primary">
+              <input ngbButton type="radio" class="btn-check" value="name"> Name
+            </label>
+            <label ngbButtonLabel class="btn-primary">
+              <input ngbButton type="radio" class="btn-check" value="category"> Category
+            </label>
           </div>
         </div>
-      <!-- </form> -->
+        <div class="col">
+          <label class="visually-hidden" for="prodNameSearch">Product Name</label>
+          <input class="form-control" id="prodNameSearch" type="text" name="searchQuery" [(ngModel)]="searchProductQuery" aria-label="product name">
+        </div>
+        <div class="col">
+          <button (click)="submitSearchProduct()" type="button" class="btn btn-primary">Search</button>
+        </div>
+      </div>
     </div>
   </div>
+
+
 
   <div class="row">
     <div class="d-flex justify-content-center align-items-center">
@@ -70,6 +73,8 @@
     </div>
   </div>
 
+
+
   <div class="row">
     <div class="d-flex justify-content-center align-items-center">
       <div *ngIf="addProductEnabled">
@@ -102,6 +107,8 @@
       </div>
     </div>
   </div>
+
+
 
   <div class="row">
     <div class="d-flex justify-content-center align-items-center">
@@ -136,19 +143,25 @@
     </div>
   </div>
 
+
+
   <div class="row">
     <div class="d-flex justify-content-center align-items-center">
       <div  *ngIf="isUserAdmin()" class="col-md-12">
-        <div class="my-2">
-          <button type="button" class="btn btn-primary me-2" (click)="enableAddProduct()">
-            Add Product
-          </button>
-          <button type="button" class="btn btn-primary me-2" (click)="uploadProducts()">
-            Import Products from file
-          </button>
-          <button type="button" class="btn btn-primary me-2" (click)="downloadProducts()">
-            Export Products to file
-          </button>
+        <div class="container">
+          <div class="row">
+            <div class="my-2 d-flex justify-content-center align-items-center">
+              <button type="button" class="btn btn-primary me-2" (click)="enableAddProduct()">
+                Add Product
+              </button>
+              <button type="button" class="btn btn-primary me-2" (click)="uploadProducts()">
+                Import Products from file
+              </button>
+              <button type="button" class="btn btn-primary me-2" (click)="downloadProducts()">
+                Export Products to file
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -156,5 +169,3 @@
 
 
 </div>
-
-<!-- <app-deletemodal [productName]=""></app-deletemodal> -->

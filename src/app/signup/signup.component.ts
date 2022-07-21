@@ -45,7 +45,7 @@ export class SignupComponent implements OnInit {
     if(this.signupForm.valid) {
       this.userService.signupUser(this.signupForm.value).subscribe(
         (res : any) => {
-          this.router.navigate(['/login'], {queryParams: {redirectedFrom: "register"}});
+          this.router.navigate(['/login'], {queryParams: {redirectedFrom: "signup"}});
         },
         err => {
           console.error("Login error", err);

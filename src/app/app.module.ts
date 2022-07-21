@@ -17,6 +17,9 @@ import { NotfoundComponent } from './notfound/notfound.component';
 import { ProductService } from './user/product/product.service';
 import { DeletemodalComponent } from './user/product/deletemodal/deletemodal.component';
 import { UploadmodalComponent } from './user/product/uploadmodal/uploadmodal.component';
+import { WeatherService } from './weather/weather.service';
+import { WeathermodalComponent } from './weather/weathermodal/weathermodal.component';
+import { WeathernowcardComponent } from './weather/weathernowcard/weathernowcard.component';
 
 const AuthInterceptorConfig = {
   provide: HTTP_INTERCEPTORS,
@@ -32,7 +35,9 @@ const AuthInterceptorConfig = {
     SignupComponent,
     NotfoundComponent,
     DeletemodalComponent,
-    UploadmodalComponent
+    UploadmodalComponent,
+    WeathermodalComponent,
+    WeathernowcardComponent
   ],
   imports: [
     BrowserModule,
@@ -43,7 +48,7 @@ const AuthInterceptorConfig = {
     AgGridModule,
     NgbModule
   ],
-  providers: [AuthGuard, AuthInterceptorConfig, UserService, ProductService],
+  providers: [AuthGuard, AuthInterceptorConfig, UserService, WeatherService, ProductService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

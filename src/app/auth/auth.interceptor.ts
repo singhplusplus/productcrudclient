@@ -11,22 +11,22 @@ export class AuthInterceptor implements HttpInterceptor {
 
   intercept(req: HttpRequest<any>, next: HttpHandler) : any {
     if (req.headers.get('noauth')) {
-      return next.handle(req.clone());
+      return next.handle(req);
     }
     else {
       const clonedreq = req.clone({
         headers: req.headers.set("Authorization", "Bearer " + this.userService.getToken())
       });
-      return next.handle(clonedreq).pipe(
-        tap(
-          event => {},
-          err => {
-            if(err.error.auth === false) {
-              this.router.navigateByUrl('/login');
+      return next.handle(clonedreq)
+        .pipe(
+          tap({
+            error: (err: any) => {
+              if(err.error.auth === false) {
+                this.router.navigateByUrl('/login');
+              }
             }
-          }
-        )
-      );
+          })
+        );
     }
   }
 }

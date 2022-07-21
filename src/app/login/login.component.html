@@ -1,5 +1,5 @@
 <div *ngIf="fromComponent && fromComponent.length > 0" class="alert alert-primary" role="alert">
-  User successfully registered. Login to continue.
+  You signed up successfully. Login to continue.
 </div>
 <div class="container">
   <div class="row">
@@ -10,21 +10,15 @@
           <div class="mb-3">
             <label for="emailId" class="form-label">Email address</label>
             <input formControlName="email" class="form-control form-control-lg" id="emailId" type="text" placeholder="youremail@domain" aria-label="login email">
-            <!-- <div *ngIf="emailControl?.touched && emailControl?.invalid" class="form-text text-danger">
-              A valid email address must contain the character - @ and domain
-            </div> -->
-            <div *ngIf="emailControl?.touched && emailControl?.value.length === 0" class="form-text text-danger">
-              Email address cannot be empty
+            <div *ngIf="emailControl?.touched && emailControl?.invalid" class="form-text text-danger">
+              Email address is invalid
             </div>
           </div>
           <div class="mb-3">
             <label for="passwordId" class="form-label">Password</label>
             <input formControlName="password" class="form-control form-control-lg" id="passwordId" type="password" placeholder="xxxxxxxx password" aria-label="login password">
-            <!-- <div *ngIf="passwordControl?.touched && passwordControl?.invalid" class="form-text text-danger">
-              A valid password must be alpha-numeric and contains 8-24 characters
-            </div> -->
-            <div *ngIf="passwordControl?.touched && passwordControl?.value.length === 0" class="form-text text-danger">
-              Password cannot be empty
+            <div *ngIf="passwordControl?.touched && passwordControl?.invalid" class="form-text text-danger">
+              Password invalid, must be 8-24 characters and alpha-numeric
             </div>
           </div>
           <div class="d-grid">
