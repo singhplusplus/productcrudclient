@@ -6,14 +6,17 @@
   <p>Upload .xlsx file that contain Product's record, to insert in database.</p>
   <form>
     <div class="mb-3">
-      <!-- <label for="deleteConfirmId">Upload file to upload Product's record here</label> -->
-      <input class="form-control" #fileInput type="file" placeholder="" (input)="uploadProducts(fileInput, $event)" [multiple]="false"/>
-      <!-- <input id="deleteConfirmId" class="form-control" name="confirmDelete" [(ngModel)]="deleteConfirmText"> -->
-      <div class="form-text">The .xlsx file must have a sheet that contain 3 columns named <strong>productName, productCategory, dateOfManufacture</strong></div>
+      <input class="form-control" (click)="prodFileInput.value=''" #prodFileInput type="file" placeholder="" (input)="uploadProducts(prodFileInput, $event)" [multiple]="false" accept=".xlsx, .xls"/>
+      <div class="form-text">The .xlsx file must have atleast one sheet that contain 3 columns named
+        <strong>productName, productCategory, dateOfManufacture</strong>. And there must be data in a row for all these 3 columns.
+      </div>
     </div>
   </form>
 </div>
 <div class="modal-footer">
+  <div *ngIf="confirmError" class="alert alert-danger mb-3" role="alert">
+    {{confirmError}}
+  </div>
   <button type="button" class="btn btn-outline-dark" (click)="closeWithoutUpload()">Cancel</button>
   <button type="button" class="btn btn-primary" (click)="saveUploadedData()">Save</button>
 </div>

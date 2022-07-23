@@ -11,7 +11,9 @@ import { UserService } from '../user/user.service';
 export class LoginComponent implements OnInit {
 
   loginForm !: FormGroup;
+  loginError: any;
   fromComponent = "";
+  isLoading = false;
 
   constructor(private fb: FormBuilder, private router: Router, private activeRoute: ActivatedRoute, private userService: UserService) { }
 
@@ -48,15 +50,26 @@ export class LoginComponent implements OnInit {
   }
 
   onSubmit() {
+    this.fromComponent = "";
     if(this.loginForm.valid) {
+      this.isLoading = true;
       this.userService.login(this.loginForm.value).subscribe({
         next: (res : any) => {
-          this.userService.setToken(res["token"]);
-          this.userService.setEmail(this.loginForm.value.email);
-          this.router.navigateByUrl("product");
+          this.isLoading = false;
+          if(!res.success) {
+            console.error("Login error", res.message);
+            this.loginError = res.message;
+          }
+          else {
+            this.userService.setToken(res["token"]);
+            this.userService.setEmail(this.loginForm.value.email);
+            this.router.navigateByUrl("product");
+          }
         },
         error: err => {
+          this.isLoading = false;
           console.error("Login error", err);
+          this.loginError = "Sorry! Something went wrong";
         }
       })
     }

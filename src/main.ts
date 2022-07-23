@@ -5,6 +5,12 @@ import { AppModule } from './app/app.module';
 import { environment } from './environments/environment';
 
 if (environment.production) {
+  if (typeof console !== "undefined" && console !== null) {
+    const noOp = () => {}; // no-op function
+    console.log = noOp;
+    console.error = noOp;
+    console.warn = noOp;
+  }
   enableProdMode();
 }
 

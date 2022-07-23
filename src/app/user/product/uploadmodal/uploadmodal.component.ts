@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import * as XLSX from 'xlsx';
 
@@ -17,8 +17,15 @@ export class UploadmodalComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  uploadProducts(fileInput: any, extra: any) {
-    console.log("fileInput, extra", fileInput, extra);
+  clearFile(event: any) {
+    event.target.value = '';
+  }
+  uploadProducts(fileInput: any, event: any) {
+
+    // if(this.productsArray.length > 0) {
+
+    // }
+    console.log("fileInput, extra", fileInput, event);
     const files: File[] = fileInput.files;
     if (files.length < 1) {
       return;
@@ -38,13 +45,31 @@ export class UploadmodalComponent implements OnInit {
 
           const ws = wb.Sheets[sheetList[0]];
           // console.log("ws", ws);
-          const data = XLSX.utils.sheet_to_json(ws);
+          const sheetData = XLSX.utils.sheet_to_json(ws);
+          console.log("sheetData", sheetData);
+          const incompleteRowNums : any = [];
+          const filteredSheet = sheetData.filter(
+            (row: any) => {
+              const isRowComplete = row.productName && row.productCategory && row.dateOfManufacture;
+              if(!isRowComplete)
+                incompleteRowNums.push(row["__rowNum__"] + 1);
+              return isRowComplete;
+            }
+          )
+          console.log("filteredSheet", filteredSheet);
+          if(filteredSheet.length < sheetData.length) {
+            console.log("Some data records are not parsed");
+            this.confirmError = `${incompleteRowNums.length > 1 ? 'Some': 'One'} of the file's rows #${JSON.stringify(incompleteRowNums)} will not be saved, due to data not present in all the required columns.`
+              + "Press 'Save' to continue anyways. Or check the file and upload again.";
+            
+          }
           // TODO: Filter the data for it to contain 3 fields for all its entries :
           // TODO: - productName, productCategory, dateOfManufacture
-          console.log(data);
-          this.productsArray = data;
+          // console.log(data);
+          this.productsArray = filteredSheet;
+          
         } catch (err) {
-          console.error("File not uploaded. The file must have a sheet named Products", err);
+          console.error("File must have a sheet with columns productName, productCategory, dateOfManufacture", err);
         }
       }
     }

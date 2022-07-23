@@ -24,7 +24,7 @@ export class ProductService {
     // const deleteBody = {productId: productId};
     return this.http.delete(api.baseUrl + `/product/delete/${productId}`);
   }
-  searchProduct(searchText: string) {
-    return this.http.get(api.baseUrl + `/product/search/${searchText}`);
+  searchProduct(searchText: string, searchBy: string) {
+    return this.http.get(api.baseUrl + `/product/search/${searchText}?searchBy=${searchBy}`);
   }
 }

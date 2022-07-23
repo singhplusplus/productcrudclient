@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-md bg-light">
   <div class="container-fluid">
-    <a href="#" class="navbar-brand text-primary mb-0 h1">Productify</a>
+    <a routerLink="/" class="navbar-brand text-primary mb-0 h1">Productify</a>
     <div class="nav-item">
       <app-weathernowcard *ngIf="weatherInfo" #weatherCard role="button" [weatherInfo]="weatherInfo" weatherIcon="{{weatherIconObs | async}}" (cardClick)="openWeatherModal(weatherCard.weatherIcon)"></app-weathernowcard>
     </div>

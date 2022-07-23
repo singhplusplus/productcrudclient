@@ -1,39 +1,53 @@
 <div class="modal-header">
-  <h4 class="modal-title" id="modal-basic-title">Today's Weather for {{weatherInfo.location.name}}</h4>
+  <h4 class="modal-title" id="modal-basic-title">Today's Weather for {{isLoading ? '...' : weatherInfo.location.name}}</h4>
   <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"></button>
 </div>
-<div class="modal-body">
-  <app-weathernowcard *ngIf="weatherInfo" [weatherInfo]="weatherInfo" [weatherIcon]="weatherIcon"></app-weathernowcard>
-
-  <div *ngIf="weatherInfo" class="card bg-transparent my-2">
-    <div class="card-body py-0">
-      <div class="d-flex justify-content-start align-items-start flex-wrap overflow-auto my-2 mx-0">
-        <div class="m-1 text-muted text-end">
-          <div class="p-1">
-            <div>Time: </div>
-            <div>Temperature: </div>
-          </div>
-        </div>
-        <div *ngFor="let hour of weatherInfo?.forecast?.forecastday[0].hour; index as i" class="card m-1">
-          <div class="card-body p-1">
-            <div>{{hour.time.split(' ')[1]}}</div>
-            <div>{{hour.temp_c}}&#176;</div>
-          </div>
-        </div>
-
+<div *ngIf="isLoading; else loadedWeather;" class="container">
+  <div class="row">
+    <div class="d-flex jusfify-content-center">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
       </div>
     </div>
   </div>
-
-  <form>
-    <div class="mb-3">
-      <label for="cityNameId">Enter city name to get its weather</label>
-      <input id="cityNameId" class="form-control" name="cityName" [(ngModel)]="newCityName">
-      <!-- <div *ngIf="confirmError" class="form-text">Please enter the highlighted text exactly to confirm delete.</div> -->
-    </div>
-  </form>
 </div>
+<ng-template #loadedWeather>
+  <div class="modal-body">
+    <app-weathernowcard *ngIf="weatherInfo" [weatherInfo]="weatherInfo" [weatherIcon]="weatherIcon"></app-weathernowcard>
+  
+    <div *ngIf="weatherInfo" class="card bg-transparent my-2">
+      <div class="card-body py-0">
+        <div class="d-flex justify-content-start align-items-start flex-wrap overflow-auto my-2 mx-0">
+          <div class="m-1 text-muted text-end">
+            <div class="p-1">
+              <div>Time: </div>
+              <div>Temperature: </div>
+            </div>
+          </div>
+          <div *ngFor="let hour of weatherInfo?.forecast?.forecastday[0].hour; index as i" class="card m-1">
+            <div class="card-body p-1">
+              <div>{{hour.time.split(' ')[1]}}</div>
+              <div>{{hour.temp_c}}&#176;</div>
+            </div>
+          </div>
+  
+        </div>
+      </div>
+    </div>
+  
+    <form>
+      <div class="mb-3">
+        <label for="cityNameId">Enter city name to get its weather</label>
+        <input id="cityNameId" class="form-control" name="cityName" [(ngModel)]="newCityName">
+        <!-- <div *ngIf="confirmError" class="form-text">Please enter the highlighted text exactly to confirm delete.</div> -->
+      </div>
+    </form>
+  </div>
+</ng-template>
 <div class="modal-footer">
   <button type="button" class="btn btn-outline-dark" (click)="closeModal()">Close</button>
-  <button type="button" class="btn btn-primary" (click)="getWeather()">Show weather</button>
+  <button type="button" class="btn btn-primary" [disabled]="isLoading" (click)="getWeather()">
+    <span *ngIf="isLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+    Show weather
+  </button>
 </div>

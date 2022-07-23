@@ -22,7 +22,9 @@ export class UserService {
 
   getProfile(email: any) {
     return this.http.get(api.baseUrl + `/auth/profile/${email}`);
-    // return this.http.get(api.baseUrl + '/auth/profile', authCredentials);
+  }
+  getAdminProfile() {
+    return this.http.get(api.baseUrl + '/auth/adminprofile');
   }
 
   // Token Helpers

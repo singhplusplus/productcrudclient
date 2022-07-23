@@ -1,3 +1,9 @@
+<div *ngIf="mustBeAdmin" class="alert alert-primary" role="alert">
+  Admin user is not yet registered. Please register one.
+</div>
+<div *ngIf="signupError" class="alert alert-danger" role="alert">
+  Unable to signup. {{ signupError }}
+</div>
 <div class="container">
   <div class="row">
     <div class="d-flex justify-content-center align-items-center">
@@ -25,12 +31,14 @@
               Password must be alpha-numeric and 8-24 characters in length.
             </div>
           </div>
-          <!-- <div class="mb-3">
-            <label for="passwordId" class="form-label">Confirm Password</label>
-            <input formControlName="password" class="form-control form-control-lg" id="passwordId" type="password" placeholder="your password here" aria-label="signup password">
-          </div> -->
+          <div *ngIf="mustBeAdmin" class="mb-2 text-muted">
+            Please remember the credentials, you can only register one admin user.
+          </div>
           <div class="d-grid">
-            <button type="submit" class="btn btn-primary">Signup</button>
+            <button type="submit" class="btn btn-primary" [disabled]="!signupForm.valid">
+              <span *ngIf="isLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              Signup
+            </button>
           </div>
         </form>
       </div>

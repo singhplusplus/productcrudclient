@@ -1,6 +1,9 @@
 <div *ngIf="fromComponent && fromComponent.length > 0" class="alert alert-primary" role="alert">
   You signed up successfully. Login to continue.
 </div>
+<div *ngIf="loginError" class="alert alert-danger" role="alert">
+  {{loginError}}
+</div>
 <div class="container">
   <div class="row">
     <div class="d-flex justify-content-center align-items-center">
@@ -18,11 +21,14 @@
             <label for="passwordId" class="form-label">Password</label>
             <input formControlName="password" class="form-control form-control-lg" id="passwordId" type="password" placeholder="xxxxxxxx password" aria-label="login password">
             <div *ngIf="passwordControl?.touched && passwordControl?.invalid" class="form-text text-danger">
-              Password invalid, must be 8-24 characters and alpha-numeric
+              Password invalid, must be 8-24 characters and alpha-numeric, no special characters
             </div>
           </div>
           <div class="d-grid">
-            <button type="submit" class="btn btn-primary">Login</button>
+            <button type="submit" class="btn btn-primary" [disabled]="!loginForm.valid">
+              <span *ngIf="isLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              Login
+            </button>
           </div>
         </form>
       </div>

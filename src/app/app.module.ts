@@ -6,7 +6,6 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ProductComponent } from './user/product/product.component';
 import { LoginComponent } from './login/login.component';
-import { AgGridModule } from 'ag-grid-angular';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SignupComponent } from './signup/signup.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -20,6 +19,8 @@ import { UploadmodalComponent } from './user/product/uploadmodal/uploadmodal.com
 import { WeatherService } from './weather/weather.service';
 import { WeathermodalComponent } from './weather/weathermodal/weathermodal.component';
 import { WeathernowcardComponent } from './weather/weathernowcard/weathernowcard.component';
+import { NgbdSortableHeaderDirective } from './ngbd/ngbd-sortable-header.directive';
+import { LazyLoadImageModule } from 'ng-lazyload-image';
 
 const AuthInterceptorConfig = {
   provide: HTTP_INTERCEPTORS,
@@ -37,7 +38,8 @@ const AuthInterceptorConfig = {
     DeletemodalComponent,
     UploadmodalComponent,
     WeathermodalComponent,
-    WeathernowcardComponent
+    WeathernowcardComponent,
+    NgbdSortableHeaderDirective
   ],
   imports: [
     BrowserModule,
@@ -45,7 +47,7 @@ const AuthInterceptorConfig = {
     AppRoutingModule,
     FormsModule,
     ReactiveFormsModule,
-    AgGridModule,
+    LazyLoadImageModule,
     NgbModule
   ],
   providers: [AuthGuard, AuthInterceptorConfig, UserService, WeatherService, ProductService],

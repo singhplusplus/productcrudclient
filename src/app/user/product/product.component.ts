@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from 'rxjs';
@@ -8,6 +8,8 @@ import { DeletemodalComponent } from './deletemodal/deletemodal.component';
 import { ProductService } from './product.service';
 import * as XLSX from 'xlsx';
 import { UploadmodalComponent } from './uploadmodal/uploadmodal.component';
+import { NgbdSortableHeaderDirective } from 'src/app/ngbd/ngbd-sortable-header.directive';
+import { DatePipe, formatDate } from '@angular/common';
 
 @Component({
   selector: 'app-product',
@@ -27,15 +29,27 @@ export class ProductComponent implements OnInit {
   searchProductQuery = "";
   searchBy = "name";
 
-  constructor(private fb: FormBuilder, private userService: UserService, 
+  dateFormat = "dd/MM/yyyy"
+  @ViewChildren(NgbdSortableHeaderDirective) headers: QueryList<NgbdSortableHeaderDirective> | any;
+
+  constructor(private fb: FormBuilder, private userService: UserService,
     private prodService: ProductService, private router: Router, private modalService: NgbModal
   ) {
 
+    const datePipe = new DatePipe("en-US", "+530");
+    
     this.addProductForm = this.fb.group({
       productName: ['', [Validators.required]],
       productCategory: ['', [Validators.required]],
-      dateOfManufacture: ['', [Validators.required]],
+      dateOfManufacture: new FormControl('', {validators: Validators.required, updateOn: 'blur'})
     });
+    this.addProductForm.get('dateOfManufacture')?.valueChanges.subscribe((val:any) => {
+        const maskedVal = datePipe.transform(val, this.dateFormat);
+        if (val !== maskedVal) {
+          this.addProductForm.patchValue({dateOfManufacture: maskedVal});
+        }
+      }
+    );
     this.editProductForm = this.fb.group({
       productId: '',
       productName: ['', [Validators.required]],
@@ -65,24 +79,12 @@ export class ProductComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.prodService.getAllProducts().subscribe(
-      (res : any) => {
-        if(!res.success) {
-          console.error("Products not found", res);
-        }
-        else {
-          this.productList = res.items;
-        }
-      },
-      err => {
-        console.error("Products not found error", err);
-      }
-    );
+    this.getProductsList();
 
     // TODO: Move this logic to login success place and store user-(email, role, full name) in storage
     // Get complete User profile for "role" using "userEmail" from storage
-    this.userService.getProfile(this.userService.getEmail()).subscribe(
-      (res : any) => {
+    this.userService.getProfile(this.userService.getEmail()).subscribe({
+      next: (res : any) => {
         if(!res.success) {
           console.error("User not found", res);
         }
@@ -90,10 +92,26 @@ export class ProductComponent implements OnInit {
           this.loggedUser = res.user;
         }
       },
-      err => {
+      error: (err: any) => {
         console.error("User not found error", err);
       }
-    )
+    })
+  }
+
+  private getProductsList() {
+    this.prodService.getAllProducts().subscribe({
+      next: (res : any) => {
+        if(!res.success) {
+          console.error("Products not found", res);
+        }
+        else {
+          this.productList = res.items;
+        }
+      },
+      error: (err: any) => {
+        console.error("Products not found error", err);
+      }
+    })
   }
 
   reloadPage(): void {
@@ -109,8 +127,8 @@ export class ProductComponent implements OnInit {
   }
   submitAddProduct(): void {
     if(this.addProductForm.valid) {
-      this.prodService.addProduct(this.addProductForm.value).subscribe(
-        (res : any) => {
+      this.prodService.addProduct(this.addProductForm.value).subscribe({
+        next: (res : any) => {
           if(!res.success) { // Add product failed
             console.error("Product not added", res);
           }
@@ -121,10 +139,10 @@ export class ProductComponent implements OnInit {
             this.reloadPage();
           }
         },
-        err => {
+        error: (err: any) => {
           console.error("Product cannot be added", err);
         }
-      );
+      });
     }
     else {
       this.addProductForm.markAllAsTouched();
@@ -150,8 +168,8 @@ export class ProductComponent implements OnInit {
 
   submitEditProduct(): void {
     if(this.editProductForm.valid) {
-      this.prodService.editProduct(this.editProductForm.value).subscribe(
-        (res : any) => {
+      this.prodService.editProduct(this.editProductForm.value).subscribe({
+        next: (res : any) => {
           if(!res.success) { // Edit product failed
             console.error("Product not edited", res);
           }
@@ -162,11 +180,10 @@ export class ProductComponent implements OnInit {
             this.reloadPage();
           }
         },
-        err => {
+        error: (err: any) => {
           console.error("Product not updated error", err);
-        },
-        null
-      );
+        }
+      });
     }
     else {
       this.editProductForm.markAllAsTouched();
@@ -179,8 +196,8 @@ export class ProductComponent implements OnInit {
     modalRef.result
       .then(res => {
         console.log("res modal closed", res);
-        this.prodService.deleteProduct(productId).subscribe(
-          (res : any) => {
+        this.prodService.deleteProduct(productId).subscribe({
+          next: (res : any) => {
             if(!res.success) {
               console.error("Product not deleted", res);
             }
@@ -189,37 +206,25 @@ export class ProductComponent implements OnInit {
               this.reloadPage();
             }
           },
-          err => {
+          error: (err: any) => {
             console.error("Product not deleted error", err);
           }
-        );
+        });
       })
       .catch(err => {
-        console.log("res modal dismissed", err);
+        console.error("modal dismissed", err);
       }
     );
   }
 
   submitSearchProduct(): void {
-    console.log(this.searchProductQuery);
+    console.log(this.searchProductQuery, this.searchBy);
     if(!this.searchProductQuery) {
-      this.prodService.getAllProducts().subscribe(
-        (res : any) => {
-          if(!res.success) {
-            console.error("Products not found", res);
-          }
-          else {
-            this.productList = res.items;
-          }
-        },
-        err => {
-          console.error("Products not found error", err);
-        }
-      )
+      this.getProductsList();
     }
     else {
-      this.prodService.searchProduct(this.searchProductQuery).subscribe(
-        (res : any) => {
+      this.prodService.searchProduct(this.searchProductQuery, this.searchBy).subscribe({
+        next: (res : any) => {
           if(!res.success) {
             console.error("Product not searched", res);
           }
@@ -229,10 +234,33 @@ export class ProductComponent implements OnInit {
             // this.reloadPage();
           }
         },
-        err => {
+        error: (err: any) => {
           console.error("Product not searched error", err);
         }
-      );
+      });
+    }
+  }
+  clearSearch(): void {
+    this.getProductsList();
+    this.searchProductQuery = "";
+  }
+  onSortDate({column, direction} : any ) {
+    // resetting other headers
+    this.headers.forEach((header:any) => {
+      if (header.sortable !== column) {
+        header.direction = '';
+      }
+    });
+    // sorting products
+    if (direction === '' || column === '') {
+      this.getProductsList();
+    }
+    else {
+      this.productList = [...this.productList].sort((a, b) => {
+        const compare = (v1: string | number, v2: string | number) => v1 < v2 ? -1 : v1 > v2 ? 1 : 0;
+        const res = compare(a[column], b[column]);
+        return direction === 'asc' ? res : -res;
+      });
     }
   }
 
@@ -241,10 +269,10 @@ export class ProductComponent implements OnInit {
     let productsArray: any[] = [];
     modalRef.result
       .then(modalRes => {
-        console.log("res modal closed", modalRes);
+        // console.log("res modal closed", modalRes);
         productsArray = modalRes;
-        this.prodService.addMultipleProducts(productsArray).subscribe(
-          (res : any) => {
+        this.prodService.addMultipleProducts(productsArray).subscribe({
+          next: (res : any) => {
             // res - array of all the responses (success / error) from adding individual product
             if(!res) {
               console.error("Products not uploaded", res);
@@ -254,10 +282,10 @@ export class ProductComponent implements OnInit {
               this.reloadPage();
             }
           },
-          err => {
+          error: (err: any) => {
             console.error("Products not uploaded error", err);
           }
-        );
+        });
       })
       .catch(err => {
         console.log("res modal dismissed", err);

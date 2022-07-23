@@ -1,8 +1,8 @@
 <div class="container">
 
 
-  <div class="row my-2">
-    <div class="d-flex justify-content-center align-items-center">
+  <div *ngIf="productList.length > 0" class="row my-2">
+    <div class="d-flex justify-content-center">
       <div class="row row-cols-md-auto g-2">
         <div class="col">
           Search by : 
@@ -22,6 +22,9 @@
         <div class="col">
           <button (click)="submitSearchProduct()" type="button" class="btn btn-primary">Search</button>
         </div>
+        <div class="col">
+          <button (click)="clearSearch()" type="button" class="btn btn-link">clear</button>
+        </div>
       </div>
     </div>
   </div>
@@ -29,7 +32,7 @@
 
 
   <div class="row">
-    <div class="d-flex justify-content-center align-items-center">
+    <div class="d-flex justify-content-center">
       <div class="col-md-12">
         <div class="my-2">
           <table class="table table-hover">
@@ -38,15 +41,27 @@
                 <th scope="col">#</th>
                 <th scope="col">Name</th>
                 <th scope="col">Category</th>
-                <th scope="col">Date added</th>
+                <th scope="col" sortable="dateOfManufacture" (sort)="onSortDate($event)">
+                  Date added <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-arrows-expand" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13A.5.5 0 0 1 1 8zM7.646.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 1.707V5.5a.5.5 0 0 1-1 0V1.707L6.354 2.854a.5.5 0 1 1-.708-.708l2-2zM8 10a.5.5 0 0 1 .5.5v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L7.5 14.293V10.5A.5.5 0 0 1 8 10z"/>
+                  </svg>
+                </th>
                 <th *ngIf="isUserAdmin()" scope="col">Actions</th>
               </tr>
             </thead>
             <tbody>
+              <div *ngIf="!productList || productList.length < 1">
+                <div class="container">
+                  <div class="row">
+                    <div class="d-flex justify-content-center">
+                      No products to display
+                    </div>
+                  </div>
+                </div>
+              </div>
               <tr *ngFor="let product of productList; index as i">
                 <th scope="row">{{ i+1 }}</th>
                 <td>
-                  <img [src]="'https://upload.wikimedia.org/wikipedia/commons/a/a4/Flag_of_the_United_States.svg'" class="me-2" style="width: 20px">
                   {{ product?.productName }}
                 </td>
                 <td>{{ product?.productCategory }}</td>
@@ -146,11 +161,11 @@
 
 
   <div class="row">
-    <div class="d-flex justify-content-center align-items-center">
+    <div class="d-flex justify-content-center">
       <div  *ngIf="isUserAdmin()" class="col-md-12">
         <div class="container">
           <div class="row">
-            <div class="my-2 d-flex justify-content-center align-items-center">
+            <div class="my-2 d-flex justify-content-center">
               <button type="button" class="btn btn-primary me-2" (click)="enableAddProduct()">
                 Add Product
               </button>

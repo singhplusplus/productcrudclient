@@ -3,7 +3,9 @@
       <span class="me-4">
         {{weatherInfo.location.name}} {{weatherInfo.current.temp_c}}&#176;
       </span> 
-      <span class="me-4"><img src='{{ "https:" + weatherIcon }}' /></span>
+      <span class="me-4">
+        <img [defaultImage]="'https://cdn.weatherapi.com/weather/64x64/day/119.png'" [lazyLoad]="'https:' + weatherIcon" />
+      </span>
       <span class="me-2"><span class="text-muted">H: </span>{{weatherInfo.forecast.forecastday[0].day.maxtemp_c}}&#176;</span>
       <span><span class="text-muted">L: </span>{{weatherInfo.forecast.forecastday[0].day.mintemp_c}}&#176;</span>
   </div>
