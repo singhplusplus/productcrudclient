@@ -40,12 +40,12 @@ export class UploadmodalComponent implements OnInit {
       if(loadResult && typeof loadResult != "string") {
         try {
           const fileBuffer = new Uint8Array(loadResult);
-          const wb = await XLSX.read(fileBuffer, {type: "buffer", cellDates: true});
+          const wb = await XLSX.read(fileBuffer, {type: "buffer", dateNF: "yyyy-MM-dd'T'HH:mm:ss.SSSZ"});
           const sheetList = wb.SheetNames;
 
           const ws = wb.Sheets[sheetList[0]];
           // console.log("ws", ws);
-          const sheetData = XLSX.utils.sheet_to_json(ws);
+          const sheetData = XLSX.utils.sheet_to_json(ws, {raw: false});
           console.log("sheetData", sheetData);
           const incompleteRowNums : any = [];
           const filteredSheet = sheetData.filter(
@@ -63,8 +63,6 @@ export class UploadmodalComponent implements OnInit {
               + "Press 'Save' to continue anyways. Or check the file and upload again.";
             
           }
-          // TODO: Filter the data for it to contain 3 fields for all its entries :
-          // TODO: - productName, productCategory, dateOfManufacture
           // console.log(data);
           this.productsArray = filteredSheet;
           

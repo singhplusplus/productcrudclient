@@ -112,7 +112,7 @@
             <label class="visually-hidden" for="prodDate">Date added</label>
             <input formControlName="dateOfManufacture" class="form-control" id="prodDate" type="text" placeholder="Product added date" aria-label="product date">
             <div *ngIf="addManufactureDate?.touched && addManufactureDate?.invalid" class="form-text text-danger">
-              Product added date cannot be empty
+              Date must be any of the ISO format
             </div>
           </div>
           <div class="col">
@@ -147,7 +147,7 @@
             <label class="visually-hidden" for="prodDateEdit">Date added</label>
             <input formControlName="dateOfManufacture" class="form-control" id="prodDateEdit" type="text" placeholder="product added date" aria-label="product date">
             <div *ngIf="editManufactureDate?.touched && editManufactureDate?.invalid" class="form-text text-danger">
-              Product added date cannot be empty
+              Date must be any of the ISO format
             </div>
           </div>
           <div class="col">

@@ -10,6 +10,8 @@ import * as XLSX from 'xlsx';
 import { UploadmodalComponent } from './uploadmodal/uploadmodal.component';
 import { NgbdSortableHeaderDirective } from 'src/app/ngbd/ngbd-sortable-header.directive';
 import { DatePipe, formatDate } from '@angular/common';
+import { acceptedFormats, DateValidator } from 'src/app/common/date.validator';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-product',
@@ -41,20 +43,17 @@ export class ProductComponent implements OnInit {
     this.addProductForm = this.fb.group({
       productName: ['', [Validators.required]],
       productCategory: ['', [Validators.required]],
-      dateOfManufacture: new FormControl('', {validators: Validators.required, updateOn: 'blur'})
+      dateOfManufacture: ['', [
+        Validators.required, DateValidator(acceptedFormats),
+      ]]
     });
-    this.addProductForm.get('dateOfManufacture')?.valueChanges.subscribe((val:any) => {
-        const maskedVal = datePipe.transform(val, this.dateFormat);
-        if (val !== maskedVal) {
-          this.addProductForm.patchValue({dateOfManufacture: maskedVal});
-        }
-      }
-    );
     this.editProductForm = this.fb.group({
       productId: '',
       productName: ['', [Validators.required]],
       productCategory: ['', [Validators.required]],
-      dateOfManufacture: ['', [Validators.required]],
+      dateOfManufacture: ['', [
+        Validators.required, DateValidator(acceptedFormats),
+      ]]
     });
   }
 
@@ -127,6 +126,10 @@ export class ProductComponent implements OnInit {
   }
   submitAddProduct(): void {
     if(this.addProductForm.valid) {
+      const addDate = moment(this.addManufactureDate?.value, acceptedFormats, true);
+      this.addProductForm.patchValue({
+        dateOfManufacture: addDate.format("YYYY-MM-DDTHH:mm:ss.SSSZ")
+      });
       this.prodService.addProduct(this.addProductForm.value).subscribe({
         next: (res : any) => {
           if(!res.success) { // Add product failed
@@ -158,16 +161,22 @@ export class ProductComponent implements OnInit {
       }
     );
 
+    const editDate = moment(editableProduct.dateOfManufacture, acceptedFormats, true);
+
     this.editProductForm.setValue({
       productId: editableProduct.productId,
       productName: editableProduct.productName,
       productCategory: editableProduct.productCategory,
-      dateOfManufacture: editableProduct.dateOfManufacture
+      dateOfManufacture: editDate.format("YYYY-MM-DDTHH:mm:ss.SSSZ")
     });
   }
 
   submitEditProduct(): void {
     if(this.editProductForm.valid) {
+      const editDate = moment(this.editManufactureDate?.value, acceptedFormats, true);
+      this.editProductForm.patchValue({
+        dateOfManufacture: editDate.format("YYYY-MM-DDTHH:mm:ss.SSSZ")
+      });
       this.prodService.editProduct(this.editProductForm.value).subscribe({
         next: (res : any) => {
           if(!res.success) { // Edit product failed
@@ -269,8 +278,9 @@ export class ProductComponent implements OnInit {
     let productsArray: any[] = [];
     modalRef.result
       .then(modalRes => {
-        // console.log("res modal closed", modalRes);
         productsArray = modalRes;
+        console.log("res modal closed", productsArray);
+        // console.log(productsArray)
         this.prodService.addMultipleProducts(productsArray).subscribe({
           next: (res : any) => {
             // res - array of all the responses (success / error) from adding individual product
