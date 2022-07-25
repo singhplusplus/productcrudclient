@@ -27,3 +27,4 @@ Note: Each field of every form is mandatory
 2) run - npm install in both the projects
 3) run - npm start in both
 4) make sure the mongod service is up and running
+5) update weather api key or base url in src/app/app.config.ts file
