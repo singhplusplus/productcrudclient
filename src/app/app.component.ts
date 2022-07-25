@@ -35,20 +35,18 @@ export class AppComponent implements OnInit {
   }
 
   openWeatherModal(icon: string) {
-    console.log("modal opened", icon);
     const modalRef = this.modalService.open(WeathermodalComponent, {backdrop: 'static'});
     modalRef.componentInstance.weatherInfo = this.weatherInfo;
     modalRef.componentInstance.weatherIcon = icon;
     modalRef.result
       .then(
         res => {
-          console.log("res modal closed", res);
           this.weatherInfo = res;
         }
       )
       .catch(
         err => {
-          console.log("res modal dismissed", err);
+          console.log("modal dismissed", err);
         }
       );
   }
@@ -61,7 +59,6 @@ export class AppComponent implements OnInit {
             console.error("Cannot get Weather information");
           }
           else {
-            console.log(res);
             this.weatherInfo = res;
           }
         },

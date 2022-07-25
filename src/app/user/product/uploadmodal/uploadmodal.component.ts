@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { xlsxDateFormat } from './../../../common/date.utils';
 import * as XLSX from 'xlsx';
 
 @Component({
@@ -21,17 +22,11 @@ export class UploadmodalComponent implements OnInit {
     event.target.value = '';
   }
   uploadProducts(fileInput: any, event: any) {
-
-    // if(this.productsArray.length > 0) {
-
-    // }
-    console.log("fileInput, extra", fileInput, event);
     const files: File[] = fileInput.files;
     if (files.length < 1) {
       return;
     }
     const file = files[0];
-    console.log("file", file);
 
     const reader = new FileReader();
     reader.readAsArrayBuffer(file);
@@ -40,13 +35,13 @@ export class UploadmodalComponent implements OnInit {
       if(loadResult && typeof loadResult != "string") {
         try {
           const fileBuffer = new Uint8Array(loadResult);
-          const wb = await XLSX.read(fileBuffer, {type: "buffer", dateNF: "yyyy-MM-dd'T'HH:mm:ss.SSSZ"});
+          const wb = await XLSX.read(fileBuffer, {type: "buffer", dateNF: xlsxDateFormat});
           const sheetList = wb.SheetNames;
 
           const ws = wb.Sheets[sheetList[0]];
-          // console.log("ws", ws);
+
           const sheetData = XLSX.utils.sheet_to_json(ws, {raw: false});
-          console.log("sheetData", sheetData);
+
           const incompleteRowNums : any = [];
           const filteredSheet = sheetData.filter(
             (row: any) => {
@@ -56,14 +51,10 @@ export class UploadmodalComponent implements OnInit {
               return isRowComplete;
             }
           )
-          console.log("filteredSheet", filteredSheet);
           if(filteredSheet.length < sheetData.length) {
-            console.log("Some data records are not parsed");
             this.confirmError = `${incompleteRowNums.length > 1 ? 'Some': 'One'} of the file's rows #${JSON.stringify(incompleteRowNums)} will not be saved, due to data not present in all the required columns.`
               + "Press 'Save' to continue anyways. Or check the file and upload again.";
-            
           }
-          // console.log(data);
           this.productsArray = filteredSheet;
           
         } catch (err) {
@@ -79,7 +70,6 @@ export class UploadmodalComponent implements OnInit {
 
   saveUploadedData() {
     if(this.productsArray.length > 0) {
-      // this.activeModal.close('Confirm');
       this.activeModal.close(this.productsArray);
     }
     else {

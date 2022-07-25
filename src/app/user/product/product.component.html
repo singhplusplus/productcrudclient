@@ -1,29 +1,60 @@
 <div class="container">
 
 
-  <div *ngIf="productList.length > 0" class="row my-2">
-    <div class="d-flex justify-content-center">
-      <div class="row row-cols-md-auto g-2">
-        <div class="col">
-          Search by : 
-          <div class="btn-group" role="group" ngbRadioGroup name="searchQueryBy" [(ngModel)]="searchBy">
-            <label ngbButtonLabel class="btn-primary">
-              <input ngbButton type="radio" class="btn-check" value="name"> Name
-            </label>
-            <label ngbButtonLabel class="btn-primary">
-              <input ngbButton type="radio" class="btn-check" value="category"> Category
-            </label>
+  <div *ngIf="productList.length > 0" class="row mt-2">
+    <div class="col-md-5 d-flex justify-content-end">
+      <span class="me-1"><small>Search by</small></span>
+      <div class="btn-group btn-group-sm" role="group" ngbRadioGroup name="searchQueryBy" [(ngModel)]="searchBy">
+        <label ngbButtonLabel class="btn-outline-primary">
+          <input ngbButton type="radio" class="btn-check" value="name"> Name
+        </label>
+        <label ngbButtonLabel class="btn-outline-primary">
+          <input ngbButton type="radio" class="btn-check" value="category"> Category
+        </label>
+        <label ngbButtonLabel class="btn-outline-primary">
+          <input ngbButton type="radio" class="btn-check" value="dateRange"> Date Range
+        </label>
+      </div>
+    </div>
+    <div class="col-md-7">
+      <div class="container">
+        <div class="row">
+          <div *ngIf="searchBy=='dateRange'; else searchByProduct" class="col">
+            <div class="input-group">
+              <input class="form-control form-control-sm" placeholder="yyyy-mm-dd" name="searchDtQuerySt" [(ngModel)]="searchDateStartQuery" ngbDatepicker #dStart="ngbDatepicker">
+              <button class="btn btn-outline-primary btn-sm" (click)="dStart.toggle()" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar" viewBox="0 0 16 16">
+                  <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+                </svg>
+              </button>
+              <input class="form-control form-control-sm" placeholder="yyyy-mm-dd" name="searchDtQueryEn" [(ngModel)]="searchDateEndQuery" ngbDatepicker #dEnd="ngbDatepicker">
+              <button class="btn btn-outline-primary btn-sm" (click)="dEnd.toggle()" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar" viewBox="0 0 16 16">
+                  <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+                </svg>
+              </button>
+            </div>
+            
+          </div>
+          <ng-template #searchByProduct>
+            <div class="col">
+              <label class="visually-hidden" for="prodNameSearch">Product Name</label>
+              <input class="form-control form-control-sm" id="prodNameSearch" type="text" name="searchQuery" [(ngModel)]="searchProductQuery" aria-label="product name search box">
+            </div>
+          </ng-template>
+          <div class="col">
+            <button (click)="submitSearch()" type="button" class="btn btn-primary btn-sm">Search</button>
+            <button (click)="clearSearch()" type="button" class="btn btn-link btn-sm">clear</button>
           </div>
         </div>
-        <div class="col">
-          <label class="visually-hidden" for="prodNameSearch">Product Name</label>
-          <input class="form-control" id="prodNameSearch" type="text" name="searchQuery" [(ngModel)]="searchProductQuery" aria-label="product name">
-        </div>
-        <div class="col">
-          <button (click)="submitSearchProduct()" type="button" class="btn btn-primary">Search</button>
-        </div>
-        <div class="col">
-          <button (click)="clearSearch()" type="button" class="btn btn-link">clear</button>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="container">
+      <div class="col-md-6 offset-md-5 ps-5">
+        <div *ngIf="dateInvalidMsg.length > 0" class="form-text text-danger">
+          {{dateInvalidMsg}}
         </div>
       </div>
     </div>

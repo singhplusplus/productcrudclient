@@ -22,9 +22,7 @@ export class LoginComponent implements OnInit {
       this.router.navigateByUrl("/product");
     }
 
-    // const redirectedFrom = this.activeRoute.snapshot.paramMap.get('redirectedFrom');
     this.activeRoute.queryParams.subscribe( params => {
-      // console.log(params);
       const redirectedFrom = params['redirectedFrom'];
       if(redirectedFrom) {
         this.fromComponent = redirectedFrom;
@@ -35,19 +33,14 @@ export class LoginComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [
         Validators.required,
-        Validators.pattern('^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9]+)$'),
+        Validators.pattern('^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9]+)$'), // alpha numeric regex
         Validators.minLength(8),
         Validators.maxLength(24),
       ]]
     });
-    // this.loginForm.valueChanges.subscribe(console.log);
   }
-  get emailControl() {
-    return this.loginForm.get('email');
-  }
-  get passwordControl() {
-    return this.loginForm.get('password');
-  }
+  get emailControl() { return this.loginForm.get('email')}
+  get passwordControl() { return this.loginForm.get('password')}
 
   onSubmit() {
     this.fromComponent = "";

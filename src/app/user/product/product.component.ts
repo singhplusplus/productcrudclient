@@ -1,22 +1,23 @@
 import { Component, OnInit, QueryList, ViewChildren } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { NgbCalendar, NgbDateStruct, NgbInputDatepickerConfig, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from 'rxjs';
 import { UserService } from '../user.service';
 import { DeletemodalComponent } from './deletemodal/deletemodal.component';
 import { ProductService } from './product.service';
 import * as XLSX from 'xlsx';
 import { UploadmodalComponent } from './uploadmodal/uploadmodal.component';
-import { NgbdSortableHeaderDirective } from 'src/app/ngbd/ngbd-sortable-header.directive';
-import { DatePipe, formatDate } from '@angular/common';
-import { acceptedFormats, DateValidator } from 'src/app/common/date.validator';
+import { NgbdSortableHeaderDirective } from './../../ngbd/ngbd-sortable-header.directive';
+import { DateStringNoFormValidator, DateValidator } from './../../common/date.validator';
+import { acceptedDateFormats, convertDatepickerToMomentDate, minDateString } from './../../common/date.utils';
 import * as moment from 'moment';
 
 @Component({
   selector: 'app-product',
   templateUrl: './product.component.html',
   styleUrls: ['./product.component.scss'],
+  providers: [NgbInputDatepickerConfig]
 })
 export class ProductComponent implements OnInit {
 
@@ -29,22 +30,27 @@ export class ProductComponent implements OnInit {
   editProductEnabled : boolean = false;
   
   searchProductQuery = "";
-  searchBy = "name";
+  searchDateStartQuery: NgbDateStruct | any;
+  searchDateEndQuery: NgbDateStruct | any;
+  searchBy = "name"; // initial value of radio button
+  searchDateModel: NgbDateStruct | any;
+  dateInvalidMsg = "";
 
-  dateFormat = "dd/MM/yyyy"
+
   @ViewChildren(NgbdSortableHeaderDirective) headers: QueryList<NgbdSortableHeaderDirective> | any;
 
-  constructor(private fb: FormBuilder, private userService: UserService,
-    private prodService: ProductService, private router: Router, private modalService: NgbModal
+  constructor(private fb: FormBuilder, private userService: UserService, private calendar: NgbCalendar,
+    private prodService: ProductService, private router: Router, private modalService: NgbModal,
+    private config: NgbInputDatepickerConfig
   ) {
 
-    const datePipe = new DatePipe("en-US", "+530");
+    config.autoClose = 'outside';
     
     this.addProductForm = this.fb.group({
       productName: ['', [Validators.required]],
       productCategory: ['', [Validators.required]],
       dateOfManufacture: ['', [
-        Validators.required, DateValidator(acceptedFormats),
+        Validators.required, DateValidator(acceptedDateFormats),
       ]]
     });
     this.editProductForm = this.fb.group({
@@ -52,35 +58,21 @@ export class ProductComponent implements OnInit {
       productName: ['', [Validators.required]],
       productCategory: ['', [Validators.required]],
       dateOfManufacture: ['', [
-        Validators.required, DateValidator(acceptedFormats),
+        Validators.required, DateValidator(acceptedDateFormats),
       ]]
     });
   }
 
-  get addProdName() {
-    return this.addProductForm.get('productName');
-  }
-  get addProdCategory() {
-    return this.addProductForm.get('productCategory');
-  }
-  get addManufactureDate() {
-    return this.addProductForm.get('dateOfManufacture');
-  }
+  get addProdName() {return this.addProductForm.get('productName')}
+  get addProdCategory() {return this.addProductForm.get('productCategory')}
+  get addManufactureDate() {return this.addProductForm.get('dateOfManufacture')}
 
-  get editProdName() {
-    return this.editProductForm.get('productName');
-  }
-  get editProdCategory() {
-    return this.editProductForm.get('productCategory');
-  }
-  get editManufactureDate() {
-    return this.editProductForm.get('dateOfManufacture');
-  }
+  get editProdName() {return this.editProductForm.get('productName')}
+  get editProdCategory() {return this.editProductForm.get('productCategory')}
+  get editManufactureDate() {return this.editProductForm.get('dateOfManufacture')}
 
   ngOnInit(): void {
     this.getProductsList();
-
-    // TODO: Move this logic to login success place and store user-(email, role, full name) in storage
     // Get complete User profile for "role" using "userEmail" from storage
     this.userService.getProfile(this.userService.getEmail()).subscribe({
       next: (res : any) => {
@@ -126,7 +118,7 @@ export class ProductComponent implements OnInit {
   }
   submitAddProduct(): void {
     if(this.addProductForm.valid) {
-      const addDate = moment(this.addManufactureDate?.value, acceptedFormats, true);
+      const addDate = moment(this.addManufactureDate?.value, acceptedDateFormats, true);
       this.addProductForm.patchValue({
         dateOfManufacture: addDate.format("YYYY-MM-DDTHH:mm:ss.SSSZ")
       });
@@ -136,7 +128,6 @@ export class ProductComponent implements OnInit {
             console.error("Product not added", res);
           }
           else {
-            console.log("product added res", res);
             // disable the Add product form on success
             this.addProductEnabled = false;
             this.reloadPage();
@@ -161,7 +152,7 @@ export class ProductComponent implements OnInit {
       }
     );
 
-    const editDate = moment(editableProduct.dateOfManufacture, acceptedFormats, true);
+    const editDate = moment(editableProduct.dateOfManufacture, acceptedDateFormats, true);
 
     this.editProductForm.setValue({
       productId: editableProduct.productId,
@@ -173,7 +164,7 @@ export class ProductComponent implements OnInit {
 
   submitEditProduct(): void {
     if(this.editProductForm.valid) {
-      const editDate = moment(this.editManufactureDate?.value, acceptedFormats, true);
+      const editDate = moment(this.editManufactureDate?.value, acceptedDateFormats, true);
       this.editProductForm.patchValue({
         dateOfManufacture: editDate.format("YYYY-MM-DDTHH:mm:ss.SSSZ")
       });
@@ -183,7 +174,6 @@ export class ProductComponent implements OnInit {
             console.error("Product not edited", res);
           }
           else {
-            console.log("product edited res", res);
             // disable the Edit product form on success
             this.editProductEnabled = false;
             this.reloadPage();
@@ -204,14 +194,12 @@ export class ProductComponent implements OnInit {
     modalRef.componentInstance.productName = productName;
     modalRef.result
       .then(res => {
-        console.log("res modal closed", res);
         this.prodService.deleteProduct(productId).subscribe({
           next: (res : any) => {
             if(!res.success) {
               console.error("Product not deleted", res);
             }
             else {
-              console.log("product deleted", res);
               this.reloadPage();
             }
           },
@@ -226,8 +214,49 @@ export class ProductComponent implements OnInit {
     );
   }
 
+  submitSearch() {
+    if(this.searchBy === "dateRange") {
+      this.submitSearchProductByDate();    
+    }
+    else {
+      this.submitSearchProduct();
+    }
+  }
+
+  submitSearchProductByDate(): void {
+    const momentStartDate = convertDatepickerToMomentDate(this.searchDateStartQuery);
+    const momentEndDate = convertDatepickerToMomentDate(this.searchDateEndQuery);
+    if(!(this.isDateValid(momentStartDate) && this.isDateValid(momentEndDate))) {
+      this.dateInvalidMsg = "Date(s) invalid, must be like YYYY-MM-DD";
+      return;
+    }
+    if(minDateString(momentStartDate, momentEndDate, moment.HTML5_FMT.DATE) !== momentStartDate) {
+      this.dateInvalidMsg = "Start date must be greater then end date";
+      return;
+    }
+    this.dateInvalidMsg = ""; // all invalid cases are out, msg gets back to empty
+    this.prodService.searchProductByDate(momentStartDate, momentEndDate).subscribe({
+      next: (res : any) => {
+        if(!res.success) {
+          console.error("Product not searched", res);
+        }
+        else {
+          this.productList = res.items;
+        }
+      },
+      error: (err: any) => {
+        console.error("Product not searched error", err);
+      }
+    });
+  }
+  private isDateValid(dateString = ""): boolean {
+    if(dateString.length > 0) {
+      return ! DateStringNoFormValidator(moment.HTML5_FMT.DATE)(dateString);
+    }
+    return false;
+  }
+
   submitSearchProduct(): void {
-    console.log(this.searchProductQuery, this.searchBy);
     if(!this.searchProductQuery) {
       this.getProductsList();
     }
@@ -238,7 +267,6 @@ export class ProductComponent implements OnInit {
             console.error("Product not searched", res);
           }
           else {
-            console.log("product searched res", res);
             this.productList = res.items;
             // this.reloadPage();
           }
@@ -252,6 +280,8 @@ export class ProductComponent implements OnInit {
   clearSearch(): void {
     this.getProductsList();
     this.searchProductQuery = "";
+    this.searchDateStartQuery = undefined;
+    this.searchDateEndQuery = undefined;
   }
   onSortDate({column, direction} : any ) {
     // resetting other headers
@@ -279,8 +309,6 @@ export class ProductComponent implements OnInit {
     modalRef.result
       .then(modalRes => {
         productsArray = modalRes;
-        console.log("res modal closed", productsArray);
-        // console.log(productsArray)
         this.prodService.addMultipleProducts(productsArray).subscribe({
           next: (res : any) => {
             // res - array of all the responses (success / error) from adding individual product
@@ -288,7 +316,6 @@ export class ProductComponent implements OnInit {
               console.error("Products not uploaded", res);
             }
             else {
-              console.log("Products uploaded successfully", res);
               this.reloadPage();
             }
           },
@@ -298,7 +325,7 @@ export class ProductComponent implements OnInit {
         });
       })
       .catch(err => {
-        console.log("res modal dismissed", err);
+        console.log("modal dismissed", err);
       }
     );
   }
@@ -321,7 +348,6 @@ export class ProductComponent implements OnInit {
   }
   private async writeToExcel(workbook: any) {
     const prodFile = await XLSX.writeFile(workbook, "Products.xlsx");
-    // console.log(prodFile);
   }
 
   isUserAdmin(): boolean {

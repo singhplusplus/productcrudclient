@@ -25,6 +25,9 @@ export class ProductService {
     return this.http.delete(api.baseUrl + `/product/delete/${productId}`);
   }
   searchProduct(searchText: string, searchBy: string) {
-    return this.http.get(api.baseUrl + `/product/search/${searchText}?searchBy=${searchBy}`);
+    return this.http.get(api.baseUrl + `/product/search/${searchText}?searchby=${searchBy}`);
+  }
+  searchProductByDate(startDate: string, endDate: string) {
+    return this.http.get(api.baseUrl + `/product/searchbydate/?startdate=${startDate}&enddate=${endDate}`);
   }
 }

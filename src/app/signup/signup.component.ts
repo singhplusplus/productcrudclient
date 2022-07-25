@@ -54,7 +54,6 @@ export class SignupComponent implements OnInit {
         this.mustBeAdmin = true;
       },
     });
-    // this.signupForm.valueChanges.subscribe(console.log);
   }
 
   // getters for form controls
