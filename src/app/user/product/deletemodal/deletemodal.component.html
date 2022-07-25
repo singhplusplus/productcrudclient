@@ -8,7 +8,7 @@
     <div class="mb-3">
       <label for="deleteConfirmId">Type <strong>{{ productName }}</strong> here</label>
       <input id="deleteConfirmId" class="form-control" name="confirmDelete" [(ngModel)]="deleteConfirmText">
-      <div *ngIf="confirmError" class="form-text">Please enter the highlighted text exactly to confirm delete.</div>
+      <div *ngIf="confirmError" class="form-text text-danger">Please enter the highlighted text exactly to confirm delete.</div>
     </div>
   </form>
 </div>
