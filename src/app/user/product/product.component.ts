@@ -28,6 +28,7 @@ export class ProductComponent implements OnInit {
   editProductForm !: FormGroup;
   addProductEnabled : boolean = false;
   editProductEnabled : boolean = false;
+  addEditDateFormat = "YYYY-MM-DDTHH:mm:ss.SSSZ";
   
   searchProductQuery = "";
   searchDateStartQuery: NgbDateStruct | any;
@@ -120,7 +121,7 @@ export class ProductComponent implements OnInit {
     if(this.addProductForm.valid) {
       const addDate = moment(this.addManufactureDate?.value, acceptedDateFormats, true);
       this.addProductForm.patchValue({
-        dateOfManufacture: addDate.format("YYYY-MM-DDTHH:mm:ss.SSSZ")
+        dateOfManufacture: addDate.format(this.addEditDateFormat)
       });
       this.prodService.addProduct(this.addProductForm.value).subscribe({
         next: (res : any) => {
@@ -158,7 +159,7 @@ export class ProductComponent implements OnInit {
       productId: editableProduct.productId,
       productName: editableProduct.productName,
       productCategory: editableProduct.productCategory,
-      dateOfManufacture: editDate.format("YYYY-MM-DDTHH:mm:ss.SSSZ")
+      dateOfManufacture: editDate.format(this.addEditDateFormat)
     });
   }
 
@@ -166,7 +167,7 @@ export class ProductComponent implements OnInit {
     if(this.editProductForm.valid) {
       const editDate = moment(this.editManufactureDate?.value, acceptedDateFormats, true);
       this.editProductForm.patchValue({
-        dateOfManufacture: editDate.format("YYYY-MM-DDTHH:mm:ss.SSSZ")
+        dateOfManufacture: editDate.format(this.addEditDateFormat)
       });
       this.prodService.editProduct(this.editProductForm.value).subscribe({
         next: (res : any) => {
@@ -231,7 +232,7 @@ export class ProductComponent implements OnInit {
       return;
     }
     if(minDateString(momentStartDate, momentEndDate, moment.HTML5_FMT.DATE) !== momentStartDate) {
-      this.dateInvalidMsg = "Start date must be greater then end date";
+      this.dateInvalidMsg = "Start date must be smaller then end date.";
       return;
     }
     this.dateInvalidMsg = ""; // all invalid cases are out, msg gets back to empty
