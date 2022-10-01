@@ -1,0 +1,1 @@
+Hi I am Jagdeep Singh from India, having 7+ years of industry experience as an IT Engineer. I have experience working in Retail domain (5 years) and Fintech (2 years). And also experienced as an Angular developer and Enterprise Java developer.
